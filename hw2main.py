@@ -82,7 +82,7 @@ def main():
 
     # Get model, loss criterion and optimiser from student.
     net = student.net.to(device)
-    criterion = student.lossFunc
+    #criterion = student.lossFunc
     optimiser = student.optimiser
 
     ########################################################################
@@ -101,15 +101,15 @@ def main():
 
             preds = net(images)             # Process batch
             
-            loss = criterion(preds, labels) # Calculate loss
+            #loss = criterion(preds, labels) # Calculate loss
 
             optimiser.zero_grad()
-            loss.backward()                 # Calculate gradients
+            #loss.backward()                 # Calculate gradients
             optimiser.step()                # Update weights
 
             output = preds.argmax(dim=1)
 
-            total_loss += loss.item()
+            #total_loss += loss.item()
             total_images += labels.size(0)
             total_correct += output.eq(labels).sum().item()
 
