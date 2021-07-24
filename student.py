@@ -52,21 +52,18 @@ class Network(nn.Module):
     def __init__(self):
         super(Network, self).__init__()
         
-        self.conv1 = nn.Conv2d(3, 6, 5)     # image 64 x 64         28 x 28
-        self.pool = nn.MaxPool2d(2)         # image 32 x 32         12 x 12
-        self.conv2 = nn.Conv2d(6,50,5)      # image 28 x 28         8  x 8
-        self.fc = nn.Linear(13*13*50, 300)    # image 14 x 14         4  x 4
-        self.output = nn.Linear(300, 9)
+        self.conv1      = nn.Conv2d(3, 32, kernel_size=3)
+        self.conv2      = nn.Conv2d(32, 300, kernel_size=3)
+        self.avgpool    = nn.AdaptiveAvgPool2d(1)
+        self.fc         = nn.Linear(64, 9)
         
     def forward(self, t):
-        print(t.size())
-        t = self.pool(F.relu(self.conv1(t)))
-        t = self.pool(F.relu(self.conv2(t)))
-        t = t.view(t.shape[0], -1)
-        t = F.relu(self.fc(t))
-        t = self.output(t)
-        t = F.log_softmax(t, dim=1)
-        return t
+        x = t
+        x = F.relu(F.max_pool2d(self.conv1(x), 2))
+        x = F.relu(F.max_pool2d(self.conv2(x), 2))
+        x = self.avgpool(x)
+        x = self.fc(x.view(-1, x.shape[1]))
+        return x
 
 '''
 class loss(nn.Module):
@@ -83,14 +80,14 @@ class loss(nn.Module):
 
 '''
 net = Network()
-#lossFunc = loss()
+lossFunc = nn.MSELoss()
 ############################################################################
 #######              Metaparameters and training options              ######
 ############################################################################
 dataset = "./data"
 train_val_split = 0.8
 batch_size = 256
-epochs = 3
+epochs = 10
 optimiser = optim.Adam(net.parameters(), lr=0.001)
 
 
