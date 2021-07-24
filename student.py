@@ -51,18 +51,22 @@ def transform(mode):
 class Network(nn.Module):
     def __init__(self):
         super(Network, self).__init__()
-        
-        self.conv1      = nn.Conv2d(3, 32, kernel_size=3)
+
+        self.conv1      = nn.Conv2d(3, 32, kernel_size=3) #62-> 60 -> 30 -> 28 -> 14
         self.conv2      = nn.Conv2d(32, 300, kernel_size=3)
-        self.avgpool    = nn.AdaptiveAvgPool2d(1)
-        self.fc         = nn.Linear(64, 9)
-        
+        self.pool = nn.MaxPool2d(2)
+        #self.avgpool    = nn.AdaptiveAvgPool2d(1)
+        self.fc         = nn.Linear(300*14*14, 64)
+        self.outl       = nn.Linear(64, 14)
+
     def forward(self, t):
         x = t
-        x = F.relu(F.max_pool2d(self.conv1(x), 2))
-        x = F.relu(F.max_pool2d(self.conv2(x), 2))
-        x = self.avgpool(x)
-        x = self.fc(x.view(-1, x.shape[1]))
+        #x = x.view(x.size(0), -1)
+        x = self.pool(F.relu(self.conv1(x)))
+        x = self.pool(F.relu(self.conv2(x)))
+#        x = self.avgpool(x)
+        x = F.relu(self.fc(x.view(x.size(0), -1)))
+        x = F.log_softmax(self.outl(x), dim=1)
         return x
 
 '''
@@ -80,7 +84,7 @@ class loss(nn.Module):
 
 '''
 net = Network()
-lossFunc = nn.MSELoss()
+lossFunc = nn.NLLLoss()
 ############################################################################
 #######              Metaparameters and training options              ######
 ############################################################################
@@ -99,9 +103,9 @@ class NetConv(nn.Module):
     # all using relu, followed by log_softmax
     def __init__(self):
         super(NetConv, self).__init__()
-        
+
         self.conv1 = nn.Conv2d(1, 6, 5)     # image 24 x 24
-        self.pool = nn.MaxPool2d(2)         # image 12 x 12 
+        self.pool = nn.MaxPool2d(2)         # image 12 x 12
         self.conv2 = nn.Conv2d(6,50,5)      # image 8 x 8
         self.fc = nn.Linear(4*4*50, 300)    # image 4 x 4
         self.output = nn.Linear(300, 10)
