@@ -22,3 +22,16 @@ epochs 10, lr 0.001, batch size 256, nn.NLLLoss()
 		Linear(64, 14)
 	Accuracy on 3161 test images: 49.16%
 
+epochs 10, lr 0.001, batch size 256, nn.NLLLoss()
+	layers:
+		conv(3, 32, 5)
+		pool(2)    
+		conv(32,128,5)
+		pool(2)  
+		conv(128,256,5)
+		
+		Linear(64 * 26 * 26, 512)
+		Linear(512, 256)
+		Linear(256, 14)
+	Accuracy on 3161 test images: 63.56%
+
