@@ -55,27 +55,24 @@ class Network(nn.Module):
         self.pool = nn.MaxPool2d(2)
         self.avgpool    = nn.AdaptiveAvgPool2d(1)
         
-        self.conv1 = nn.Conv2d(3, 16, 5)    # image 64 x 64
-        self.conv2 = nn.Conv2d(16,32,5)     # image 28 x 28
-        self.conv3 = nn.Conv2d(32,64,5)
-        #self.conv4 = nn.Conv2d(64,128,4)
+        self.conv1 = nn.Conv2d(3, 32, 5)    # image 64 x 64
+        self.conv2 = nn.Conv2d(32,128,5)     # image 28 x 28
+        self.conv3 = nn.Conv2d(128,256,5)   
 
-        self.fc1 = nn.Linear(64 * 26 * 26, 512)
-        self.fc2 = nn.Linear(512, 256)
-        self.fc3 = nn.Linear(256, 14)
+        self.hidden = nn.Linear(256 * 9 * 9, 64)
+        self.output = nn.Linear(64, 14)
         
     def forward(self, t):
         x = t
-        x = F.relu(self.conv1(x))
-        x = F.relu(self.conv2(x))
-        x = self.pool(F.relu(self.conv3(x)))
-        #x = self.pool(F.relu(self.conv4(x)))
+        x = self.pool(F.leaky_relu(self.conv1(x)))
+        x = self.pool(F.leaky_relu(self.conv2(x)))
+        x = F.leaky_relu(self.conv3(x))
 
 
         x = x.view(x.shape[0], -1)
-        x = F.relu(self.fc1(x))
-        x = F.relu(self.fc2(x))
-        x = self.fc3(x)
+        x = F.leaky_relu(self.hidden(x))
+        #x = F.relu(self.hidden1(x))
+        x = self.output(x)
         x = F.log_softmax(x, dim = 1)
         return x
 
@@ -99,8 +96,8 @@ lossFunc = nn.NLLLoss()
 #######              Metaparameters and training options              ######
 ############################################################################
 dataset = "./data"
-train_val_split = 0.8
-batch_size = 256
+train_val_split = 0.9
+batch_size = 64
 epochs = 10
 optimiser = optim.Adam(net.parameters(), lr=0.001)
 
@@ -124,7 +121,7 @@ class NetConv(nn.Module):
     def forward(self, x):
 
         x = self.pool(F.relu(self.conv1(x)))
-        x = self.pool(F.relu(self.conv2(x)))
+        x = self.F.relu(self.conv2(x))
         x = x.view(x.shape[0], -1)
         x = F.relu(self.fc(x))
         x = self.output(x)
