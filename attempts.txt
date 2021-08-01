@@ -1,0 +1,139 @@
+batch_size: [64,256] higher = more accurate on training data, less general
+kernal size: [3,11] odd number, shouldn't matter much
+in_channels = out_channels of previous layer
+out_channels = ??? cant find any infomation on best way to set this value
+
+
+https://medium.com/octavian-ai/which-optimizer-and-learning-rate-should-i-use-for-deep-learning-5acb418f9b2
+
+https://albumentations.ai/docs/examples/pytorch_classification/
+
+https://www.analyticsvidhya.com/blog/2021/04/10-pytorch-transformations-you-need-to-know/
+
+https://androidkt.com/pytorch-image-augmentation-using-transforms/
+
+https://medium.com/octavian-ai/which-optimizer-and-learning-rate-should-i-use-for-deep-learning-5acb418f9b2
+
+https://towardsdatascience.com/adaptive-and-cyclical-learning-rates-using-pytorch-2bf904d18dee
+
+https://iq.opengenus.org/resnet50-architecture/
+
+https://medium.com/analytics-vidhya/resnet-from-scratch-638e901e0934
+
+https://neptune.ai/blog/pytorch-loss-functions
+
+https://ljvmiranda921.github.io/notebook/2017/08/13/softmax-and-the-negative-log-likelihood/
+
+https://machinelearningmastery.com/best-practices-for-preparing-and-augmenting-image-data-for-convolutional-neural-networks/
+
+https://neptune.ai/blog/data-augmentation-in-python
+
+https://androidkt.com/pytorch-image-augmentation-using-transforms/
+
+https://machinelearningmastery.com/how-to-choose-loss-functions-when-training-deep-learning-neural-networks/
+
+https://towardsdatascience.com/improves-cnn-performance-by-applying-data-transformation-bf86b3f4cef4
+
+
+
+
+
+
+
+
+attempts
+
+epochs 10, lr 0.001, batch size 256, nn.NLLLoss()
+	layers:
+		leaky_relu conv(3, 32, 5)
+		BatchNorn
+		leaky_relu pool(2)    
+		leaky_relu conv(32,128,5)
+		BatchNorn
+		leaky_relu pool(2)  
+		leaky_relu conv(128,256,5)
+		BatchNorn
+		
+		leaky_relu Linear(256 * 9 * 9, 64)
+		BatchNorn
+		log_softmax Linear(64, 14)
+	Accuracy on 1581 test images: 77.86%
+
+
+
+
+
+
+
+
+
+epochs 10, lr 0.001, batch size 256, nn.NLLLoss()
+	layers:
+		relu conv(3, 32, 5)
+		relu pool(2)    
+		relu conv(32,128,5)
+		relu pool(2)  
+		relu conv(128,256,5)
+		
+		relu Linear(256 * 9 * 9, 64)
+		log_softmax Linear(64, 14)
+	Accuracy on 1581 test images: 74.19%
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+epochs 10, lr 0.001, batch size 256, nn.NLLLoss()
+	layers:
+		conv(3, 32, 5)
+		pool(2)    
+		conv(32,128,5)
+		pool(2)  
+		conv(128,256,5)
+		
+		Linear(256 * 9 * 9, 512)
+		Linear(512, 256)
+		Linear(256, 14)
+	Accuracy on 3161 test images: 63.56%
+
+
+epochs 10, lr 0.001, batch size 256, nn.NLLLoss()
+	layers:
+		conv(3, 16, 5)    
+		conv(16,32,5)    
+		conv(32,64,5)
+		pool(2)
+		Linear(64 * 26 * 26, 512)
+		Linear(512, 256)
+		Linear(256, 14)
+	Accuracy on 3161 test images: 57.10%
+
+
+epochs 10, lr 0.001, batch size 256, nn.NLLLoss()
+	layers:
+		conv(3,32,3)
+		pool(2)
+		conv(32,300,3)
+		pool(2)
+		Linear(300 * 14 * 14, 64)
+		Linear(64, 14)
+	Accuracy on 3161 test images: 49.16%
+
+
+
