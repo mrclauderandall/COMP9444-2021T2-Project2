@@ -34,7 +34,7 @@ https://machinelearningmastery.com/how-to-choose-loss-functions-when-training-de
 
 https://towardsdatascience.com/improves-cnn-performance-by-applying-data-transformation-bf86b3f4cef4
 
-
+https://kozodoi.me/python/deep%20learning/pytorch/tutorial/2021/03/08/image-mean-std.html
 
 
 
