@@ -58,7 +58,26 @@ def transform(mode):
         ])
 
 
+class Block(nn.Module):
+    def __init__(self, in_channels, out_channels, stride=1):
+        super(Block, self).__init__()
+        self.activation = nn.ReLU(inplace = True)
 
+        self.c1 = nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=stride, padding=1)
+        self.b1 = nn.BatchNorm2d(out_channels)
+
+        self.c2 = nn.Conv2d(out_channels, out_channels, kernel_size=3, stride=1, padding=1)
+        self.b2 = nn.BatchNorm2d(out_channels)
+
+        #self.d = nn.Dropout(p=0.2)
+
+    def forward(self, x):
+
+        x = self.activation(self.b1(self.c1(x)))
+        x = self.activation(self.b2(self.c2(x)))
+        #x = self.d(x)
+
+        return x
 
 
 ############################################################################
@@ -68,75 +87,47 @@ class Network(nn.Module):
     def __init__(self):
         super(Network, self).__init__()
 
-        self.relu = nn.ReLU()
-        self.pool = nn.MaxPool2d(2)
+        block = Block
+
+        self.relu = nn.ReLU(inplace = True)
+        self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
 
 
-        self.c1 = nn.Conv2d(3, 64, 7, stride = 1, padding = 3) # -> 64
-        self.b1 = nn.BatchNorm2d(64)
-        self.c2 = nn.Conv2d(64, 128, 3, stride = 1, padding = 1) # -> 32
-        self.b2 = nn.BatchNorm2d(128)
-        self.c3 = nn.Conv2d(128, 256, 3, stride = 1, padding = 1) # -> 32
-        self.b3 = nn.BatchNorm2d(256)
+        self.conv1 = nn.Conv2d(3, 64, kernel_size=7, stride=2, padding=3, bias=False)
+        self.bn1 = nn.BatchNorm2d(64)
 
-        
-        self.c4 = nn.Conv2d(256, 64, 3, stride = 1, padding = 1) # -> 32
-        self.b4 = nn.BatchNorm2d(64)
-        self.c5 = nn.Conv2d(64, 128, 3, stride = 1, padding = 1) # -> 32
-        self.b5 = nn.BatchNorm2d(128)
-        self.c6 = nn.Conv2d(128, 256, 3, stride = 1, padding = 1) # -> 32
-        self.b6 = nn.BatchNorm2d(256)
 
-        self.c7 = nn.Conv2d(256, 64, 3, stride = 1) # -> 32
-        self.b7 = nn.BatchNorm2d(64)
-        self.c8 = nn.Conv2d(64, 128, 3, stride = 1) # -> 32
-        self.b8 = nn.BatchNorm2d(128)
-        self.c9 = nn.Conv2d(128, 256, 3, stride = 1) # -> 32
-        self.b9 = nn.BatchNorm2d(256)
-
-        #pool
-        self.c10 = nn.Conv2d(256, 512, 3, stride = 1, padding = 1) # -> 32
-        self.b10 = nn.BatchNorm2d(512)
-
+        self.layer1 = nn.Sequential(block(64, 64, 1), block(64, 128, 1))
+        self.layer2 = nn.Sequential(block(128, 256, 2), block(256, 512, 2))
+        #self.layer3 = nn.Sequential(block(128, 256, 2), block(256, 256, 2))
+        #self.layer4 = nn.Sequential(block(256, 512, 2), block(512, 512, 2))
         
         self.avgpool = nn.AdaptiveAvgPool2d((1,1))
         self.h1 = nn.Linear(512, 14)
         
-        
+
+
+
     def forward(self, x):
         
-        x = self.c1(x)
-        x = self.b1(x)
+        x = self.conv1(x)
+        x = self.bn1(x)
         x = self.relu(x)
 
-        x = self.pool(x)
+        x = self.maxpool(x)
 
-        
-        x = self.c2(x)
-        x = self.b2(x)
-        x = self.relu(x)
-        
-
-
-
-
-        x = self.relu(self.b3(self.c3(x)))
-        x = self.relu(self.b4(self.c4(x)))
-        x = self.relu(self.b5(self.c5(x)))
-        x = self.relu(self.b6(self.c6(x)))
-        x = self.relu(self.b7(self.c7(x)))
-        x = self.relu(self.b8(self.c8(x)))
-        x = self.relu(self.b9(self.c9(x)))
-        x = self.relu(self.b10(self.c10(x)))
-
+        x = self.layer1(x)
+        x = self.layer2(x)
+        #x = self.layer3(x)
+        #x = self.layer4(x)
 
         x = self.avgpool(x)
         x = x.view(x.size(0), -1)
         x = self.h1(x)
+        #x = self.output(x)
 
         return x
 
-        
 
 
 net = Network()
