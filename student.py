@@ -143,5 +143,5 @@ lossFunc = nn.CrossEntropyLoss()
 dataset = "./data"
 train_val_split = 1
 batch_size = 64
-epochs = 200
+epochs = 100
 optimiser = optim.Adam(net.parameters(), lr=0.001)
