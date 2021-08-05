@@ -44,7 +44,6 @@ def transform(mode):
             transforms.RandomApply([transforms.RandomCrop(48)], p = 0.4),
             
             transforms.Resize(64),
-            #transforms.RandomApply([transforms.ColorJitter(brightness=0, contrast=1, saturation=0, hue=0)], p = 0.3),
             
             transforms.ToTensor(),
             transforms.RandomErasing(p=0.2),
@@ -58,6 +57,10 @@ def transform(mode):
         ])
 
 
+def init_weights(m):
+    if isinstance(m, nn.Conv2d):
+        nn.init.xavier_uniform_(m.weight)
+
 class Block(nn.Module):
     def __init__(self, in_channels, out_channels, stride=1):
         super(Block, self).__init__()
@@ -69,13 +72,13 @@ class Block(nn.Module):
         self.c2 = nn.Conv2d(out_channels, out_channels, kernel_size=3, stride=1, padding=1)
         self.b2 = nn.BatchNorm2d(out_channels)
 
-        #self.d = nn.Dropout(p=0.2)
+        self.d = nn.Dropout(p=0.2)
 
     def forward(self, x):
 
         x = self.activation(self.b1(self.c1(x)))
         x = self.activation(self.b2(self.c2(x)))
-        #x = self.d(x)
+        x = self.d(x)
 
         return x
 
@@ -99,12 +102,14 @@ class Network(nn.Module):
 
         self.layer1 = nn.Sequential(block(64, 64, 1), block(64, 128, 1))
         self.layer2 = nn.Sequential(block(128, 256, 2), block(256, 512, 2))
-        #self.layer3 = nn.Sequential(block(128, 256, 2), block(256, 256, 2))
+        #self.layer3 = nn.Sequential(block(256, 256, 2), block(256, 512, 2))
         #self.layer4 = nn.Sequential(block(256, 512, 2), block(512, 512, 2))
         
         self.avgpool = nn.AdaptiveAvgPool2d((1,1))
         self.h1 = nn.Linear(512, 14)
         
+        for module in self.modules():
+            init_weights(module)
 
 
 
@@ -136,7 +141,7 @@ lossFunc = nn.CrossEntropyLoss()
 #######              Metaparameters and training options              ######
 ############################################################################
 dataset = "./data"
-train_val_split = 0.9
+train_val_split = 1
 batch_size = 64
-epochs = 100
+epochs = 200
 optimiser = optim.Adam(net.parameters(), lr=0.001)
