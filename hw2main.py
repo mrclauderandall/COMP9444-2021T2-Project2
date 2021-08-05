@@ -56,7 +56,7 @@ def main():
     #######                      Loading Data                        #######
     ########################################################################
     data = torchvision.datasets.ImageFolder(root=student.dataset)
-    
+
     if student.train_val_split == 1:
         # Train on the entire dataset
         data = torchvision.datasets.ImageFolder(root=student.dataset,
@@ -75,14 +75,14 @@ def main():
         testset = DatasetFromSubset(
             test_subset, transform=student.transform('test'))
 
-        trainloader = torch.utils.data.DataLoader(trainset, 
+        trainloader = torch.utils.data.DataLoader(trainset,
                             batch_size=student.batch_size, shuffle=False)
-        testloader = torch.utils.data.DataLoader(testset, 
+        testloader = torch.utils.data.DataLoader(testset,
                             batch_size=student.batch_size, shuffle=False)
 
     # Get model, loss criterion and optimiser from student.
     net = student.net.to(device)
-    #criterion = student.lossFunc
+    criterion = torch.nn.NLLLoss()
     optimiser = student.optimiser
 
     ########################################################################
@@ -95,21 +95,21 @@ def main():
         total_correct = 0
 
         for batch in trainloader:           # Load batch
-            images, labels = batch 
+            images, labels = batch
             images = images.to(device)
             labels = labels.to(device)
 
             preds = net(images)             # Process batch
-            
-            #loss = criterion(preds, labels) # Calculate loss
+
+            loss = criterion(preds, labels) # Calculate loss
 
             optimiser.zero_grad()
-            #loss.backward()                 # Calculate gradients
+            loss.backward()                 # Calculate gradients
             optimiser.step()                # Update weights
 
             output = preds.argmax(dim=1)
 
-            #total_loss += loss.item()
+            total_loss += loss.item()
             total_images += labels.size(0)
             total_correct += output.eq(labels).sum().item()
 
@@ -127,6 +127,6 @@ def main():
         test_network(net,testloader)
     torch.save(net.state_dict(), 'savedModel.pth')
     print("   Model saved to savedModel.pth")
-    
+
 if __name__ == '__main__':
     main()
