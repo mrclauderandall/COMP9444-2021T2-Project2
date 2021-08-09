@@ -1,20 +1,15 @@
 #!/usr/bin/env python3
 """
 student.py
-
 UNSW COMP9444 Neural Networks and Deep Learning
-
 You may modify this file however you wish, including creating additional
 variables, functions, classes, etc., so long as your code runs with the
 hw2main.py file unmodified, and you are only using the approved packages.
-
 You have been given some default values for the variables train_val_split,
 batch_size as well as the transform function.
 You are encouraged to modify these to improve the performance of your model.
-
 The variable device may be used to refer to the CPU/GPU being used by PyTorch.
 You may change this variable in the config.py file.
-
 """
 import torch
 import torch.nn as nn
@@ -26,10 +21,8 @@ import torchvision.transforms as transforms
 
 """
    Answer to Question:
-
 Briefly describe how your program works, and explain any design and training
 decisions you made along the way.
-
     - Data Transforms -
 We decided to implement a number of data transformations to the input images.
 For the training inputs, in order to generate a larger variance of images to train off,
@@ -44,7 +37,6 @@ For both Testing and Training, we normalized the inputs, based on a mean of 0.42
 standard deviation of 0.2116. We specifically calculated these values based on the averages
 of the images, in a method that is described in more detail here
 (https://kozodoi.me/python/deep%20learning/pytorch/tutorial/2021/03/08/image-mean-std.html).
-
     - Neural Network Architecture -
 We explored many different ideas and implementations over the course of our development, and
 eventually found that this particular dataset is prone to overfitting on networks that are too deep.
@@ -64,16 +56,13 @@ Each block has a dropout rate of p=0.2 applied on output, which limits overfitti
 and improved our accuracy noticeably. After these two layers of blocks, we apply an AdaptiveAvgPool2d of 1x1, as
 outlined in the paper, before resizing the output and running it through a Linear layer which results in an output
 size of 14, classifying one of the 14 characters.
-
     - Weight initialization - 
 We used Kaiming normal initialization as according to research it is best suited for non-linear layers using ReLU 
 activation (https://towardsdatascience.com/understand-kaiming-initialization-and-implementation-detail-in-pytorch-f7aa967e9138).
 With testing, we found slightly better results using the fan_out mode over the fan_in mode.
-
     - Loss Function -
 After trying multiple functions, we settled on a standard CrossEntropyLoss function, which we found most effective
 and researching seemed to back this up, as it is normally used for classification problems
-
     - Optimizer/Metaparameters -
 We kept the learning rate at 0.001, which was most effective combined with our optimizer and architecture. A batch
 size of 64 also yielded best results after much testing, as well as 200 epochs, after which we found greatly
