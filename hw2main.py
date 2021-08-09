@@ -1,28 +1,15 @@
-#!/usr/bin/env python3
 """
 hw2main.py
-
 UNSW COMP9444 Neural Networks and Deep Learning
-
 DO NOT MODIFY THIS FILE
 """
 import torch
 import torchvision
-from torch import sqrt
-
-import matplotlib.pyplot as plt
-import numpy as np
 
 from torch.utils.data import Dataset, random_split
 from config import device
 
 import student
-
-def imshow(img):
-    img = img / 2 + 0.5  # unnormalize
-    npimg = img.numpy()
-    plt.imshow(np.transpose(npimg, (1, 2, 0)))
-    plt.show()
 
 # This class allows train/test split with different transforms
 class DatasetFromSubset(Dataset):
@@ -41,54 +28,18 @@ class DatasetFromSubset(Dataset):
 
 # Test network on validation set, if it exists.
 def test_network(net,testloader):
-
     net.eval()
     total_images = 0
     total_correct = 0
-    
-
-    psum    = torch.tensor([0.0, 0.0, 0.0])
-    psum_sq = torch.tensor([0.0, 0.0, 0.0])
-
-
     with torch.no_grad():
         for data in testloader:
             images, labels = data
-            
-
-
-            #psum    += images.sum(axis        = [0, 2, 3])
-            #psum_sq += (images ** 2).sum(axis = [0, 2, 3])
-            
-
-
-
-
             images = images.to(device)
-            
-
-
-
-            
-
-
-            
-
-
-
-
             labels = labels.to(device)
             outputs = net(images)
             _, predicted = torch.max(outputs.data, 1)
             total_images += labels.size(0)
             total_correct += (predicted == labels).sum().item()
-
-    #count = total_images * 64 * 64
-    #total_mean = psum / count
-    #total_var  = (psum_sq / count) - (total_mean ** 2)
-    #total_std  = torch.sqrt(total_var)
-    #print(total_mean)
-    #print(total_std)
 
     model_accuracy = total_correct / total_images * 100
     print('      Accuracy on {0} test images: {1:.2f}%'.format(
@@ -102,16 +53,13 @@ def main():
     #######                      Loading Data                        #######
     ########################################################################
     data = torchvision.datasets.ImageFolder(root=student.dataset)
-    
+
     if student.train_val_split == 1:
         # Train on the entire dataset
         data = torchvision.datasets.ImageFolder(root=student.dataset,
                             transform=student.transform('train'))
         trainloader = torch.utils.data.DataLoader(data,
                             batch_size=student.batch_size, shuffle=True);
-
-        
-
     else:
         # Split the dataset into trainset and testset
         data = torchvision.datasets.ImageFolder(root=student.dataset)
@@ -124,42 +72,32 @@ def main():
         testset = DatasetFromSubset(
             test_subset, transform=student.transform('test'))
 
-        
-        trainloader = torch.utils.data.DataLoader(trainset, 
+        trainloader = torch.utils.data.DataLoader(trainset,
                             batch_size=student.batch_size, shuffle=False)
-        testloader = torch.utils.data.DataLoader(testset, 
+        testloader = torch.utils.data.DataLoader(testset,
                             batch_size=student.batch_size, shuffle=False)
 
     # Get model, loss criterion and optimiser from student.
     net = student.net.to(device)
-    criterion = student.lossFunc
+    criterion = torch.nn.NLLLoss()
     optimiser = student.optimiser
 
     ########################################################################
     #######                        Training                          #######
     ########################################################################
     print("Start training...")
-    show_images = False
-
     for epoch in range(1,student.epochs+1):
         total_loss = 0
         total_images = 0
         total_correct = 0
-        i = 0
-        for batch in trainloader:           # Load batch
-            i += 1
-            images, labels = batch 
-            
-            if (show_images):
-                imshow(torchvision.utils.make_grid(images))
-                show_images = False
 
+        for batch in trainloader:           # Load batch
+            images, labels = batch
             images = images.to(device)
-            
             labels = labels.to(device)
 
             preds = net(images)             # Process batch
-            
+
             loss = criterion(preds, labels) # Calculate loss
 
             optimiser.zero_grad()
@@ -171,7 +109,6 @@ def main():
             total_loss += loss.item()
             total_images += labels.size(0)
             total_correct += output.eq(labels).sum().item()
-
 
         model_accuracy = total_correct / total_images * 100
         print('epoch {0} total_correct: {1} loss: {2:.2f} acc: {3:.2f}'.format(
@@ -187,6 +124,6 @@ def main():
         test_network(net,testloader)
     torch.save(net.state_dict(), 'savedModel.pth')
     print("   Model saved to savedModel.pth")
-    
+
 if __name__ == '__main__':
     main()
